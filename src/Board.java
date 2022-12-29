@@ -1,11 +1,8 @@
 public class Board {
-    private final int size[];
+    private final int size[] = {6,7};
     private final int state[][];
     private final int toConnect = 4;
-
-
-    public Board(int[] size) {
-        this.size = size;
+    public Board() {
         this.state = new int[size[0]][size[1]];
     }
 
