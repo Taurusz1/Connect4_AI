@@ -35,7 +35,6 @@ public class GameLogic {
                 col = currentPlayer.step();
             }
             step(currentPlayer.getToken(),col);
-            //TODO check victory in the good way
             if(checkVictory()) {
                 view.print();
                 EndGame(lastplayerToken);
@@ -71,7 +70,7 @@ public class GameLogic {
     private boolean checkVictory(){
         int[] size = board.getSize();
         int[][] state = board.getState();
-        if(boardFull(size, state) || inRow(size, state) || inCol(size, state) ){
+        if(boardFull(size, state) || inRow(size, state) || inCol(size, state) || inDiag(size, state) || inOtherDiag(size, state)){
             return true;
         }
         return false;
@@ -80,10 +79,10 @@ public class GameLogic {
     // |0|1|2|3|4|5|6|
     // | | | | | | | |
     // | | | | | | | |
-    // |X| | | | | | |
-    // |X| | | | | | |
-    // |X| | | | | | |
-    // |X| | | | | | |
+    // | | | | | | | |
+    // | | | | | | | |
+    // | |O| | | | | |
+    // | | | | | | | |
     //Only checks if the last placed token completes the game
     private boolean inRow(int[]size, int[][] state){
         int rowCount = 0;
@@ -123,50 +122,51 @@ public class GameLogic {
     }
     private boolean inDiag(int[]size, int[][] state){
         int diagCount = 0;
-        for (int diag = 1; diag <= (size[0] + size[1] - 1); diag++) {
-            int start_col = max(0, diag - size[0]);
-            int count = min(diag, min((size[1] - start_col), size[0]));
-            for (int j = 0; j < count; j++){
-                //System.out.print(state[min(size[0], diag) - j- 1][start_col + j] + " ");
-                if(state[min(size[0], diag) - j- 1][start_col + j] == lastplayerToken){
-                    diagCount++;
-                    if(diagCount == board.getToConnect()){
-                        winnerToken = lastplayerToken;
-                        return true;
-                    }
-                }else{
-                    diagCount = 0;
+        int toConnect = board.getToConnect();
+
+        //max 3, vagy amennyi lehet fölötte, vagy tőle balra
+        int stepLeftUp = min(toConnect - 1, min(lastToken[0], lastToken[1]));
+        //ugyan ez csak jobbra lefelé nézve
+        int stepRightDown = min(toConnect - 1, min(size[0] - lastToken[0], size[1] - lastToken[1]));
+        //ha ki se jöhet a sor
+        if ((stepLeftUp + stepRightDown) < toConnect){
+            //System.out.println("length not enough: " + (stepLeftUp + stepRightDown) );
+            return false;
+        }
+
+        for (int diagonalStep = -stepLeftUp; diagonalStep < stepRightDown; diagonalStep++) {
+            if (state[lastToken[0] + diagonalStep][lastToken[1] + diagonalStep] == lastplayerToken) {
+                diagCount++;
+                if(diagCount == toConnect){
+                    winnerToken = lastplayerToken;
+                    return true;
                 }
+            }else{
+                diagCount = 0;
             }
-            diagCount = 0;
-            System.out.println();
         }
         return false;
     }
     private boolean inOtherDiag(int[]size, int[][] state){
         int otherdiagCount = 0;
-        for (int diag = 1; diag <= (size[0] + size[1] - 1); diag++) {
-            int start_col;
-            if(diag <= size[0]){
-                start_col = diag-1;
-            }else{
-                start_col = size[0]-1;
-            }
-            int count = min(diag, min((size[1] - start_col), size[0]));
-            for (int j = 0; j < count; j++){
-                System.out.print(state[min(size[0], diag) - j- 1][start_col + j] + " ");
-                if(state[min(size[0], diag) - j- 1][start_col + j] == lastplayerToken){
-                    otherdiagCount++;
-                    if(otherdiagCount == board.getToConnect()){
-                        winnerToken = lastplayerToken;
-                        return true;
-                    }
-                }else{
-                    otherdiagCount = 0;
+        int toConnect = board.getToConnect();
+
+        int stepLeftDown = min(toConnect - 1, min(size[0] - lastToken[0] - 1, lastToken[1]));
+        int stepRightUp = min(toConnect, min(lastToken[0]+1, size[1] - lastToken[1]));
+        //ha ki se jöhet a sor
+        if ((stepRightUp + stepLeftDown) < toConnect)
+            return false;
+        for (int diagonalStep = -stepLeftDown; diagonalStep < stepRightUp; diagonalStep++) {
+
+            if (state[lastToken[0] - diagonalStep][lastToken[1] + diagonalStep] == lastplayerToken) {
+                otherdiagCount++;
+                if(otherdiagCount == toConnect){
+                    winnerToken = lastplayerToken;
+                    return true;
                 }
+            }else{
+                otherdiagCount = 0;
             }
-            otherdiagCount = 0;
-            System.out.println();
         }
         return false;
     }
