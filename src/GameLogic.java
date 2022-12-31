@@ -29,10 +29,10 @@ public class GameLogic {
     private void Run(){
         while (true){
             view.print();
-            int  col = currentPlayer.step();
+            int  col = currentPlayer.step(board);
             while(!isStepValid(col)){
                 System.out.println("invalid input");
-                col = currentPlayer.step();
+                col = currentPlayer.step(board);
             }
             step(currentPlayer.getToken(),col);
             if(checkVictory()) {
@@ -129,10 +129,8 @@ public class GameLogic {
         //ugyan ez csak jobbra lefelé nézve
         int stepRightDown = min(toConnect - 1, min(size[0] - lastToken[0], size[1] - lastToken[1]));
         //ha ki se jöhet a sor
-        if ((stepLeftUp + stepRightDown) < toConnect){
-            //System.out.println("length not enough: " + (stepLeftUp + stepRightDown) );
+        if ((stepLeftUp + stepRightDown) < toConnect)
             return false;
-        }
 
         for (int diagonalStep = -stepLeftUp; diagonalStep < stepRightDown; diagonalStep++) {
             if (state[lastToken[0] + diagonalStep][lastToken[1] + diagonalStep] == lastplayerToken) {
