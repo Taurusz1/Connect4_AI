@@ -1,4 +1,3 @@
-import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 public class GameLogic {
@@ -88,7 +87,7 @@ public class GameLogic {
         int rowCount = 0;
         int toConnect = board.getToConnect();
         int startrow = lastToken[0];
-        int startcol = lastToken[1] - toConnect < 0 ? 0 : lastToken[1] - toConnect;
+        int startcol = Math.max(lastToken[1] - toConnect, 0);
             for (int col = startcol; col < size[1]; col++) {
                 if(state[startrow][col] == lastplayerToken){
                     rowCount++;

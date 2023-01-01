@@ -2,7 +2,7 @@ import java.util.Scanner;
 
 public class Player {
     final int playerToken;
-    private Board currentBoard;
+    Board currentBoard;
     public Player(int token){
         this.playerToken = token;
     }
